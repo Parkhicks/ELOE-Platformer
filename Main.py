@@ -26,9 +26,9 @@ class Player(Sprite):
     def __init__(self, startx, starty):
         super().__init__("", startx, starty)
         self.stand_image = self.image
-        self.jump_image = pygame.image.load("")
+        self.jump_image = pygame.image.load("./assets/p1_front.png")
 
-        self.walk_cycle = [pygame.image.load(f"") for i in range(1,12)]
+        self.walk_cycle = [pygame.image.load(f"./assets/p1_walk{i:0>2}.png") for i in range(1,12)]
         self.animation_index = 0
         self.facing_left = False
 
@@ -112,7 +112,7 @@ class Player(Sprite):
 
 class Box(Sprite):
     def __init__(self, startx, starty):
-        super().__init__("", startx, starty)
+        super().__init__("./assets/box.png", startx, starty)
 
 
 def main():
