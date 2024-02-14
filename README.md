@@ -14,5 +14,5 @@
 # Programs Needed
 
 - Python
-- pygame
+- pygame 'pip install pygame'
 - numpy 'pip install numpy'
