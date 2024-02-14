@@ -24,7 +24,7 @@ class Sprite(pygame.sprite.Sprite):
 
 class Player(Sprite):
     def __init__(self, startx, starty):
-        super().__init__("", startx, starty)
+        super().__init__("./assets/p1_front.png", startx, starty)
         self.stand_image = self.image
         self.jump_image = pygame.image.load("./assets/p1_front.png")
 
@@ -114,7 +114,7 @@ class Box(Sprite):
     def __init__(self, startx, starty):
         super().__init__("./assets/box.png", startx, starty)
 
-        
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
