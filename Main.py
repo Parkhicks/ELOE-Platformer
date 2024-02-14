@@ -1,5 +1,5 @@
 # intial Code from https://docs.replit.com/tutorials/python/2d-platform-game
-import pygame, numpy
+import pygame, numpy # How to install numpy? I need to find out so I can add to the README
 
 WIDTH = 400
 HEIGHT = 300
