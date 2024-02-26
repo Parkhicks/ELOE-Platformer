@@ -9,10 +9,10 @@
 # Useful Websites
 
 - [Markdown](https://www.w3schools.io/file/markdown-comments/)
-- list
+- [Markdown 2](https://www.markdownguide.org/cheat-sheet/)
 
 # Programs Needed
 
 - Python
-- pygame
-- numpy
+- pygame 'pip install pygame'
+- numpy 'pip install numpy'
