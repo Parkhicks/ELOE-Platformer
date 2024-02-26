@@ -24,7 +24,7 @@ class Sprite(pygame.sprite.Sprite):
 
 class Player(Sprite):
     def __init__(self, startx, starty):
-        super().__init__("./assets/p1_front.png", startx, starty)
+        super().__init__("./Assets/p1_front.png", startx, starty)
         self.stand_image = self.image
         self.jump_image = pygame.image.load("./assets/p1_front.png")
 
@@ -114,6 +114,25 @@ class Player(Sprite):
         collide = pygame.sprite.spritecollideany(self, grounds)
         self.rect.move_ip([-x, -y])
         return collide
+    
+class Enemy(Sprite):
+    def __init__(self, startx, starty, width = 50, height = 50):
+        super().__init__("./Assets/enemy_sprite.png", startx, starty)
+        self.image = pygame.transform.scale(self.image, (width,height))
+        self.speed = 2
+        self.direction = 1  # 1 for right, -1 for left
+
+    def update(self, boxes):
+        self.rect.x += self.speed * self.direction
+        # Reverse direction if reaching boundaries
+        if self.rect.left < 0 or self.rect.right > WIDTH:
+            self.direction *= -1
+        
+        collision_list = pygame.sprite.spritecollide(self, boxes, False)
+        for box in collision_list:
+            # Collision handling
+            # For example, you can change the enemy's direction upon collision
+            self.direction *= -1  # Reverse direction
 
 
 class Box(Sprite):
@@ -121,7 +140,7 @@ class Box(Sprite):
         super().__init__("./assets/box.png", startx, starty)
         
 
-
+        
 def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -129,7 +148,11 @@ def main():
 
     player = Player(100, 200)
 
-    environment = pygame.sprite.Group()
+    enemies = pygame.sprite.Group()
+    enemy = Enemy(200, 100)
+    enemies.add(enemy)
+
+    boxes = pygame.sprite.Group()
     for bx in range(0, 400, 70):
         environment.add(Box(bx, 300))
 
@@ -138,12 +161,14 @@ def main():
 
     while True:
         pygame.event.pump()
-        player.update(environment)
+        player.update(boxes)
+        enemy.update(boxes)
 
         # Draw loop
         screen.fill(BACKGROUND)
         player.draw(screen)
-        environment.draw(screen)
+        enemies.draw(screen)
+        boxes.draw(screen)
         pygame.display.flip()
 
         clock.tick(60)
