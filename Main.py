@@ -6,7 +6,6 @@ HEIGHT = 300
 BACKGROUND = (0, 0, 0)
 
 
-
 class Sprite(pygame.sprite.Sprite):
     def __init__(self, image, startx, starty):
         super().__init__()
@@ -89,8 +88,10 @@ class Player(Sprite):
         if onground and self.vsp > 0:
             self.vsp = 0
 
+
         # movement
         self.move(hsp, self.vsp, environment)
+        
 
     def move(self, x, y, environment):
         dx = x
@@ -102,9 +103,12 @@ class Player(Sprite):
         while self.check_collision(dx, dy, environment):
             dx -= numpy.sign(dx)
 
-        self.rect.move_ip([dx, dy])
-        map(Box.rect([-dx,-dy]), environment)
+        for sprite in environment.sprites():
+            sprite.rect.x -= dx
+            sprite.rect.y -= dy
+        self.rect.move_ip([0, 0])
 
+       
     def check_collision(self, x, y, grounds):
         self.rect.move_ip([x, y])
         collide = pygame.sprite.spritecollideany(self, grounds)
@@ -115,6 +119,7 @@ class Player(Sprite):
 class Box(Sprite):
     def __init__(self, startx, starty):
         super().__init__("./assets/box.png", startx, starty)
+        
 
 
 def main():
