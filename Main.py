@@ -1,8 +1,8 @@
 # intial Code from https://docs.replit.com/tutorials/python/2d-platform-game
 import pygame, numpy
 
-WIDTH = 400
-HEIGHT = 300
+WIDTH = 800
+HEIGHT = 600
 BACKGROUND = (0, 0, 0)
 
 
@@ -54,7 +54,7 @@ class Player(Sprite):
         if self.facing_left:
             self.image = pygame.transform.flip(self.image, True, False)
 
-    def update(self, environment):
+    def update(self, environment, enemies):
         hsp = 0
         onground = self.check_collision(0, 1, environment)
         # check keys
@@ -90,10 +90,10 @@ class Player(Sprite):
 
 
         # movement
-        self.move(hsp, self.vsp, environment)
+        self.move(hsp, self.vsp, environment, enemies)
         
 
-    def move(self, x, y, environment):
+    def move(self, x, y, environment, enemies):
         dx = x
         dy = y
 
@@ -104,6 +104,9 @@ class Player(Sprite):
             dx -= numpy.sign(dx)
 
         for sprite in environment.sprites():
+            sprite.rect.x -= dx
+            sprite.rect.y -= dy
+        for sprite in enemies.sprites():
             sprite.rect.x -= dx
             sprite.rect.y -= dy
         self.rect.move_ip([0, 0])
@@ -152,7 +155,7 @@ def main():
     enemy = Enemy(200, 100)
     enemies.add(enemy)
 
-    boxes = pygame.sprite.Group()
+    environment = pygame.sprite.Group()
     for bx in range(0, 400, 70):
         environment.add(Box(bx, 300))
 
@@ -161,14 +164,14 @@ def main():
 
     while True:
         pygame.event.pump()
-        player.update(boxes)
-        enemy.update(boxes)
+        player.update(environment, enemies)
+        enemy.update(environment)
 
         # Draw loop
         screen.fill(BACKGROUND)
         player.draw(screen)
         enemies.draw(screen)
-        boxes.draw(screen)
+        environment.draw(screen)
         pygame.display.flip()
 
         clock.tick(60)
