@@ -149,18 +149,18 @@ def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     clock = pygame.time.Clock()
 
-    player = Player(100, 200)
+    player = Player(400, 300)
 
     enemies = pygame.sprite.Group()
     enemy = Enemy(200, 100)
     enemies.add(enemy)
 
     environment = pygame.sprite.Group()
-    for bx in range(0, 400, 70):
-        environment.add(Box(bx, 300))
+    for bx in range(0, 800, 70):
+        environment.add(Box(bx, 400))
 
     environment.add(Box(330, 230))
-    environment.add(Box(100, 70))
+    environment.add(Box(400, 70))
 
     while True:
         pygame.event.pump()
