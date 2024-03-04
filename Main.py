@@ -149,14 +149,14 @@ def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     clock = pygame.time.Clock()
 
-    player = Player(400, 300)
+    player = Player(WIDTH / 2, HEIGHT / 2)
 
     enemies = pygame.sprite.Group()
     enemy = Enemy(200, 100)
     enemies.add(enemy)
 
     environment = pygame.sprite.Group()
-    for bx in range(0, 800, 70):
+    for bx in range(-10000, 10000, 70):
         environment.add(Box(bx, 400))
 
     environment.add(Box(330, 230))
