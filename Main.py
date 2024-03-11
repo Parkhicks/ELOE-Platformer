@@ -27,6 +27,7 @@ class Player(Sprite):
         super().__init__("./Assets/p1_front.png", startx, starty)
         self.stand_image = self.image
         self.jump_image = pygame.image.load("./assets/p1_front.png")
+        self.is_alive = True
 
         self.walk_cycle = [pygame.image.load(f"./assets/p1_walk{i:0>2}.png") for i in range(1,12)]
         self.animation_index = 0
@@ -92,16 +93,31 @@ class Player(Sprite):
         # movement
         self.move(hsp, self.vsp, environment, enemies)
         
+        enemy_collision = pygame.sprite.spritecollideany(self, enemies)
+        
+        if enemy_collision:
+            self.is_alive = False
+            print("Player died!")
+        
 
     def move(self, x, y, environment, enemies):
         dx = x
         dy = y
+        dxPlayer = 0
+        
+        if (dx > 0 and self.rect.x < (WIDTH - (WIDTH / 4))):
+            dxPlayer = dx
+        elif (dx < 0 and self.rect.x > WIDTH / 4):
+            dxPlayer = dx
+        
 
         while self.check_collision(0, dy, environment):
             dy -= numpy.sign(dy)
 
-        while self.check_collision(dx, dy, environment):
+        
+        while self.check_collision((dxPlayer + dx), dy, environment):
             dx -= numpy.sign(dx)
+            dxPlayer -= numpy.sign(dxPlayer)
 
         for sprite in environment.sprites():
             sprite.rect.x -= dx
@@ -109,7 +125,12 @@ class Player(Sprite):
         for sprite in enemies.sprites():
             sprite.rect.x -= dx
             sprite.rect.y -= dy
-        self.rect.move_ip([0, 0])
+        # dxPlayer = (dx * (numpy.sin( self.rect.x *((4 * numpy.pi) / WIDTH))))
+        # if(WIDTH / 4 < self.rect.x < (3 * WIDTH / 4)):
+        #     dxPlayer = -(dx * (numpy.sin( self.rect.x/WIDTH *(4 * numpy.pi))))
+        # else:
+        #     dxPlayer = (dx * (numpy.sin( self.rect.x/WIDTH *((4 * numpy.pi) / WIDTH))))
+        self.rect.move_ip([dxPlayer, 0])  
 
        
     def check_collision(self, x, y, grounds):
@@ -166,6 +187,22 @@ def main():
         pygame.event.pump()
         player.update(environment, enemies)
         enemy.update(environment)
+        
+        if not player.is_alive:
+            player = Player(WIDTH / 2, HEIGHT / 2)
+
+            enemies = pygame.sprite.Group()
+            enemy = Enemy(200, 100)
+            enemies.add(enemy)
+
+            environment = pygame.sprite.Group()
+            for bx in range(-10000, 10000, 70):
+                environment.add(Box(bx, 400))
+
+            environment.add(Box(330, 230))
+            environment.add(Box(400, 70))
+
+
 
         # Draw loop
         screen.fill(BACKGROUND)
