@@ -1,8 +1,8 @@
 # intial Code from https://docs.replit.com/tutorials/python/2d-platform-game
 import pygame, numpy
 
-WIDTH = 400
-HEIGHT = 300
+WIDTH = 800
+HEIGHT = 600
 BACKGROUND = (0, 0, 0)
 
 
@@ -27,6 +27,7 @@ class Player(Sprite):
         super().__init__("./Assets/p1_front.png", startx, starty)
         self.stand_image = self.image
         self.jump_image = pygame.image.load("./assets/p1_front.png")
+        self.is_alive = True
 
         self.walk_cycle = [pygame.image.load(f"./assets/p1_walk{i:0>2}.png") for i in range(1,12)]
         self.animation_index = 0
@@ -54,9 +55,9 @@ class Player(Sprite):
         if self.facing_left:
             self.image = pygame.transform.flip(self.image, True, False)
 
-    def update(self, boxes):
+    def update(self, environment, enemies):
         hsp = 0
-        onground = self.check_collision(0, 1, boxes)
+        onground = self.check_collision(0, 1, environment)
         # check keys
         key = pygame.key.get_pressed()
         if key[pygame.K_LEFT]:
@@ -88,21 +89,50 @@ class Player(Sprite):
         if onground and self.vsp > 0:
             self.vsp = 0
 
-        # movement
-        self.move(hsp, self.vsp, boxes)
 
-    def move(self, x, y, boxes):
+        # movement
+        self.move(hsp, self.vsp, environment, enemies)
+        
+        enemy_collision = pygame.sprite.spritecollideany(self, enemies)
+        
+        if enemy_collision:
+            self.is_alive = False
+            print("Player died!")
+        
+
+    def move(self, x, y, environment, enemies):
         dx = x
         dy = y
+        dxPlayer = 0
+        
+        if (dx > 0 and self.rect.x < (WIDTH - (WIDTH / 4))):
+            dxPlayer = dx
+        elif (dx < 0 and self.rect.x > WIDTH / 4):
+            dxPlayer = dx
+        
 
-        while self.check_collision(0, dy, boxes):
+        while self.check_collision(0, dy, environment):
             dy -= numpy.sign(dy)
 
-        while self.check_collision(dx, dy, boxes):
+        
+        while self.check_collision((dxPlayer + dx), dy, environment):
             dx -= numpy.sign(dx)
+            dxPlayer -= numpy.sign(dxPlayer)
 
-        self.rect.move_ip([dx, dy])
+        for sprite in environment.sprites():
+            sprite.rect.x -= dx
+            sprite.rect.y -= dy
+        for sprite in enemies.sprites():
+            sprite.rect.x -= dx
+            sprite.rect.y -= dy
+        # dxPlayer = (dx * (numpy.sin( self.rect.x *((4 * numpy.pi) / WIDTH))))
+        # if(WIDTH / 4 < self.rect.x < (3 * WIDTH / 4)):
+        #     dxPlayer = -(dx * (numpy.sin( self.rect.x/WIDTH *(4 * numpy.pi))))
+        # else:
+        #     dxPlayer = (dx * (numpy.sin( self.rect.x/WIDTH *((4 * numpy.pi) / WIDTH))))
+        self.rect.move_ip([dxPlayer, 0])  
 
+       
     def check_collision(self, x, y, grounds):
         self.rect.move_ip([x, y])
         collide = pygame.sprite.spritecollideany(self, grounds)
@@ -132,36 +162,53 @@ class Enemy(Sprite):
 class Box(Sprite):
     def __init__(self, startx, starty):
         super().__init__("./assets/box.png", startx, starty)
-
         
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     clock = pygame.time.Clock()
 
-    player = Player(100, 200)
+    player = Player(WIDTH / 2, HEIGHT / 2)
 
     enemies = pygame.sprite.Group()
     enemy = Enemy(200, 100)
     enemies.add(enemy)
 
-    boxes = pygame.sprite.Group()
-    for bx in range(0, 400, 70):
-        boxes.add(Box(bx, 300))
+    environment = pygame.sprite.Group()
+    for bx in range(-10000, 10000, 70):
+        environment.add(Box(bx, 400))
 
-    boxes.add(Box(330, 230))
-    boxes.add(Box(100, 70))
+    environment.add(Box(330, 230))
+    environment.add(Box(400, 70))
 
     while True:
         pygame.event.pump()
-        player.update(boxes)
-        enemy.update(boxes)
+        player.update(environment, enemies)
+        enemy.update(environment)
+        
+        if not player.is_alive:
+            player = Player(WIDTH / 2, HEIGHT / 2)
+
+            enemies = pygame.sprite.Group()
+            enemy = Enemy(200, 100)
+            enemies.add(enemy)
+
+            environment = pygame.sprite.Group()
+            for bx in range(-10000, 10000, 70):
+                environment.add(Box(bx, 400))
+
+            environment.add(Box(330, 230))
+            environment.add(Box(400, 70))
+
+
 
         # Draw loop
         screen.fill(BACKGROUND)
         player.draw(screen)
         enemies.draw(screen)
-        boxes.draw(screen)
+        environment.draw(screen)
         pygame.display.flip()
 
         clock.tick(60)
